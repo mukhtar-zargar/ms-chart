@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.postAppName }}
+spec:
+  selector:
+    app: {{ .Values.postAppName }}
+  ports:
+    - port:  {{ .Values.postAppPort }}
+      targetPort: {{ .Values.port }}
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.postAppName }}
+
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.postAppName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.postAppName }}
+    spec:
+      containers:
+        - name: {{ .Values.postAppName }}
+          image: {{ .Values.postAppImage }}
+          ports:
+            - name: liveness-port
+              containerPort: {{ .Values.port }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          startupProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 30
+            httpGet:
+              path: /api/v1
+              port: liveness-port
+          envFrom:
+            - secretRef:
+                name: {{ .Values.secretsRef }}

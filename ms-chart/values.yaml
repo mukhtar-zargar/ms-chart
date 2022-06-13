@@ -1,0 +1,85 @@
+userAppName: user-service
+userAppImage: mukhtarzargar/user_service
+userAppPort: 3000
+
+postAppName: post-service
+postAppImage: mukhtarzargar/post_service
+postAppPort: 3001
+
+notifierAppName: notifier-service
+notifierAppImage: mukhtarzargar/notifier_service
+notifierAppPort: 3002
+
+replicas: 1
+imagePullPolicy: Always
+
+secretsRef: ms-secrets
+
+port: 3000
+
+secrets:
+  PORT: "3000"
+
+  DB_TYPE: mongodb
+  DB_USER_NAME: userdb
+  DB_POST_NAME: postdb
+  DB_HOST: ms-chart-mongodb
+  DB_PORT: "27017"
+  DB_USER: root
+  DB_PASSWORD: secretpassword
+  DB_AUTHSOURCE: admin
+
+  JWT_SECRET: secret
+
+  KAFKA_BROKER: ms-chart-kafka:9092
+  KAFKA_SASL_USERNAME: ""
+  KAFKA_SASL_PASSWORD: ""
+
+  REDIS_HOST: ms-chart-redis-master
+  REDIS_PORT: "6379"
+  REDIS_USERNAME: ""
+  REDIS_PASSWORD: ""
+  REDIS_DEFAULT_DB: "0"
+
+mongodb:
+  enabled: true
+  auth:
+    enabled: true
+    rootUser: root
+    rootPassword: "secretpassword"
+  livenessProbe:
+    enabled: true
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+  startupProbe:
+    enabled: true
+
+redis:
+  enabled: true
+  architecture: standalone
+  livenessProbe:
+    enabled: true
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+  startupProbe:
+    enabled: true
+
+kafka:
+  enabled: true
+  defaultReplicationFactor: 1
+  # offsetsTopicReplicationFactor: 1
+  # transactionStateLogReplicationFactor: 1
+  replicaCount: 1
+  minBrokerId: 1
+
+  serviceAccount:
+    create: true
+  rbac:
+    create: true
+
+  zookeeper:
+    enabled: true
+    replicaCount: 1
+    allowAnonymousLogin: true
